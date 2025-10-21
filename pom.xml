@@ -36,6 +36,7 @@
         <module>video-service</module>
         <module>assignment-service</module>
         <module>notification-service</module>
+        <module>payment-service</module>
     </modules>
 
     <dependencyManagement>
