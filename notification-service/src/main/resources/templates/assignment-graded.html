@@ -1,0 +1,89 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #4CAF50;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 5px 5px;
+        }
+        .grade-box {
+            background-color: white;
+            padding: 20px;
+            border-left: 4px solid #4CAF50;
+            margin: 20px 0;
+            text-align: center;
+        }
+        .score {
+            font-size: 48px;
+            font-weight: bold;
+            color: #4CAF50;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #4CAF50;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>✅ Assignment Graded</h1>
+    </div>
+    <div class="content">
+        <h2>Hi <span th:text="${userName}">Student</span>!</h2>
+        
+        <p>Great news! Your assignment has been graded:</p>
+        
+        <div class="grade-box">
+            <h3 th:text="${assignmentTitle}">Assignment Title</h3>
+            <div class="score" th:text="${score}">85</div>
+            <p>Points</p>
+        </div>
+        
+        <p>Keep up the great work! Review your instructor's feedback to see how you can improve even further.</p>
+        
+        <p><strong>Next steps:</strong></p>
+        <ul>
+            <li>Review the detailed feedback from your instructor</li>
+            <li>Learn from any mistakes</li>
+            <li>Apply what you've learned to future assignments</li>
+            <li>Keep progressing through the course</li>
+        </ul>
+        
+        <a href="#" class="button">View Feedback</a>
+        
+        <p>Congratulations!</p>
+        <p><strong>The Online Learning Platform Team</strong></p>
+    </div>
+    <div class="footer">
+        <p>© 2025 Online Learning Platform. All rights reserved.</p>
+    </div>
+</body>
+</html>

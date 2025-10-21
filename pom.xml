@@ -35,6 +35,7 @@
         <module>enrollment-service</module>
         <module>video-service</module>
         <module>assignment-service</module>
+        <module>notification-service</module>
     </modules>
 
     <dependencyManagement>

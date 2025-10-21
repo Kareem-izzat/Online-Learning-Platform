@@ -1,0 +1,87 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            line-height: 1.6;
+            color: #333;
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+        }
+        .header {
+            background-color: #FF9800;
+            color: white;
+            padding: 20px;
+            text-align: center;
+            border-radius: 5px 5px 0 0;
+        }
+        .content {
+            background-color: #f9f9f9;
+            padding: 30px;
+            border-radius: 0 0 5px 5px;
+        }
+        .assignment-box {
+            background-color: white;
+            padding: 20px;
+            border-left: 4px solid #FF9800;
+            margin: 20px 0;
+        }
+        .deadline {
+            color: #FF5722;
+            font-weight: bold;
+            font-size: 18px;
+        }
+        .button {
+            display: inline-block;
+            padding: 12px 24px;
+            background-color: #FF9800;
+            color: white;
+            text-decoration: none;
+            border-radius: 5px;
+            margin: 20px 0;
+        }
+        .footer {
+            text-align: center;
+            margin-top: 20px;
+            font-size: 12px;
+            color: #777;
+        }
+    </style>
+</head>
+<body>
+    <div class="header">
+        <h1>⏰ Assignment Reminder</h1>
+    </div>
+    <div class="content">
+        <h2>Hi <span th:text="${userName}">Student</span>!</h2>
+        
+        <p>This is a friendly reminder about your upcoming assignment:</p>
+        
+        <div class="assignment-box">
+            <h3 th:text="${assignmentTitle}">Assignment Title</h3>
+            <p>Due Date: <span class="deadline" th:text="${dueDate}">Date</span></p>
+        </div>
+        
+        <p>Don't forget to submit your assignment before the deadline!</p>
+        
+        <p><strong>Tips for success:</strong></p>
+        <ul>
+            <li>Review the assignment instructions carefully</li>
+            <li>Start early to avoid last-minute stress</li>
+            <li>Ask questions in the discussion forum if you need help</li>
+            <li>Double-check your submission before the deadline</li>
+        </ul>
+        
+        <a href="#" class="button">Submit Assignment</a>
+        
+        <p>Good luck!</p>
+        <p><strong>The Online Learning Platform Team</strong></p>
+    </div>
+    <div class="footer">
+        <p>© 2025 Online Learning Platform. All rights reserved.</p>
+    </div>
+</body>
+</html>
