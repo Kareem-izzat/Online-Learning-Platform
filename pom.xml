@@ -33,6 +33,7 @@
         <module>api-gateway</module>
         <module>course-service</module>
         <module>enrollment-service</module>
+        <module>video-service</module>
     </modules>
 
     <dependencyManagement>
