@@ -34,6 +34,7 @@
         <module>course-service</module>
         <module>enrollment-service</module>
         <module>video-service</module>
+        <module>assignment-service</module>
     </modules>
 
     <dependencyManagement>
