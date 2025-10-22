@@ -37,6 +37,7 @@
         <module>assignment-service</module>
         <module>notification-service</module>
         <module>payment-service</module>
+        <module>quiz-service</module>
     </modules>
 
     <dependencyManagement>
