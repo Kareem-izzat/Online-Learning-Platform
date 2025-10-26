@@ -39,7 +39,7 @@
         <module>payment-service</module>
         <module>quiz-service</module>
     </modules>
-
+    
     <dependencyManagement>
         <dependencies>
             <!-- Spring Cloud Dependencies -->
