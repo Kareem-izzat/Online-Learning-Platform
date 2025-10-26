@@ -39,6 +39,7 @@
         <module>payment-service</module>
         <module>quiz-service</module>
         <module>progress-service</module>
+        <module>review-service</module>
     </modules>
     
     <dependencyManagement>
