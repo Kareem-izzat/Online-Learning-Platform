@@ -38,6 +38,7 @@
         <module>notification-service</module>
         <module>payment-service</module>
         <module>quiz-service</module>
+        <module>progress-service</module>
     </modules>
     
     <dependencyManagement>
