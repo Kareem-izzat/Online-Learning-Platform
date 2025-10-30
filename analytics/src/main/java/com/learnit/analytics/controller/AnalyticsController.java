@@ -2,6 +2,7 @@ package com.learnit.analytics.controller;
 
 import com.learnit.analytics.dto.EventEnvelope;
 import com.learnit.analytics.service.AnalyticsService;
+import jakarta.validation.Valid;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -25,13 +26,13 @@ public class AnalyticsController {
     }
 
     @PostMapping("/ingest")
-    public ResponseEntity<String> ingest(@RequestBody EventEnvelope envelope) {
+    public ResponseEntity<String> ingest(@Valid @RequestBody EventEnvelope envelope) {
         analyticsService.processEvent(envelope);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("accepted");
     }
 
     @PostMapping("/ingest/batch")
-    public ResponseEntity<String> ingestBatch(@RequestBody java.util.List<EventEnvelope> envelopes) {
+    public ResponseEntity<String> ingestBatch(@Valid @RequestBody java.util.List<EventEnvelope> envelopes) {
         analyticsService.processEvents(envelopes);
         return ResponseEntity.status(HttpStatus.ACCEPTED).body("accepted");
     }

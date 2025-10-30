@@ -3,15 +3,24 @@ package com.learnit.analytics.dto;
 import com.fasterxml.jackson.annotation.JsonAnySetter;
 import com.fasterxml.jackson.annotation.JsonCreator;
 import com.fasterxml.jackson.annotation.JsonProperty;
+import jakarta.validation.constraints.NotBlank;
+import jakarta.validation.constraints.NotNull;
 
 import java.time.Instant;
 import java.util.HashMap;
 import java.util.Map;
 
 public class EventEnvelope {
+    
+    @NotBlank(message = "eventType is required")
     private String eventType;
+    
+    @NotBlank(message = "eventId is required")
     private String eventId;
+    
+    @NotNull(message = "occurredAt is required")
     private Instant occurredAt;
+    
     private Integer schemaVersion;
     private String sourceService;
     private Map<String, Object> payload = new HashMap<>();
