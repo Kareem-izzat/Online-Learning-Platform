@@ -6,6 +6,7 @@ import com.learningplatform.userservice.entity.User;
 import com.learningplatform.userservice.repository.UserRepository;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
@@ -18,6 +19,7 @@ import java.util.stream.Collectors;
 public class UserService {
 
     private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @Transactional
     public UserResponseDto createUser(UserRequestDto request) {
@@ -29,7 +31,7 @@ public class UserService {
 
         User user = User.builder()
                 .email(request.getEmail())
-                .password(request.getPassword()) // TODO: Hash password with BCrypt
+                .password(passwordEncoder.encode(request.getPassword())) // Hash password with BCrypt
                 .firstName(request.getFirstName())
                 .lastName(request.getLastName())
                 .role(request.getRole())
@@ -39,6 +41,12 @@ public class UserService {
         log.info("User created successfully with ID: {}", savedUser.getId());
 
         return mapToResponseDto(savedUser);
+    }
+
+    public User getUserEntityById(Long id) {
+        log.info("Fetching user entity with ID: {}", id);
+        return userRepository.findById(id)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
     }
 
     public UserResponseDto getUserById(Long id) {
@@ -70,7 +78,10 @@ public class UserService {
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + id));
 
         user.setEmail(request.getEmail());
-        user.setPassword(request.getPassword()); // TODO: Hash password
+        // Only hash password if it's been changed (not starting with $2a$ bcrypt prefix)
+        if (!request.getPassword().startsWith("$2a$")) {
+            user.setPassword(passwordEncoder.encode(request.getPassword()));
+        }
         user.setFirstName(request.getFirstName());
         user.setLastName(request.getLastName());
         user.setRole(request.getRole());

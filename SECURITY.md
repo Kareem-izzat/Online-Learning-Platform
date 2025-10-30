@@ -2,13 +2,63 @@
 
 ## Overview
 
-Both Analytics and Discussion services now implement comprehensive security:
+The Online Learning Platform implements a **centralized security architecture** at the API Gateway level:
 
-- **Authentication**: JWT tokens (Discussion Service) + API Keys (Analytics Service)
-- **Authorization**: Role-based access control
-- **Input Validation**: Jakarta Validation on all DTOs
-- **CORS**: Configurable cross-origin resource sharing
-- **Secure Configuration**: Environment-based secrets
+- **✅ Centralized Authentication**: JWT validation at API Gateway only
+- **✅ Single Point of Entry**: All client requests go through gateway
+- **✅ User Context Propagation**: Gateway adds `X-User-Id` and `X-Username` headers
+- **✅ Backend Trust Model**: Services trust gateway's user context
+- **✅ Password Security**: BCrypt hashing in User Service
+- **✅ Service-to-Service**: API Key authentication (Analytics Service)
+
+## Quick Start
+
+See **[API-GATEWAY-SECURITY.md](API-GATEWAY-SECURITY.md)** for complete centralized authentication documentation.
+
+### Architecture
+
+```
+Client → API Gateway (Validates JWT) → Backend Service (Trusts Headers)
+            ↓
+       Extracts userId
+            ↓
+    Adds X-User-Id header
+```
+
+### Authentication Flow
+
+1. **Register**: `POST /api/auth/register` (User Service)
+2. **Login**: `POST /api/auth/login` → Get JWT token
+3. **Use Token**: Add `Authorization: Bearer <token>` to all requests
+4. **Gateway**: Validates token, extracts userId, forwards to backend
+5. **Backend**: Reads `X-User-Id` header (already authenticated!)
+
+---
+
+## Centralized Security (API Gateway)
+
+**✅ Current Implementation**: All services protected at gateway level
+
+See **[API-GATEWAY-SECURITY.md](API-GATEWAY-SECURITY.md)** for:
+- Complete authentication flow
+- Configuration guide
+- Testing examples
+- Production checklist
+- Troubleshooting
+
+### Public Endpoints (No Auth Required)
+
+- `/api/auth/**` - Login, register
+- `/api/courses` (GET) - Browse courses
+- `/api/discussions` (GET) - Read discussions
+- `/eureka/**` - Service discovery
+- `/actuator/**` - Health checks
+
+### Protected Endpoints (JWT Required)
+
+- All POST, PUT, DELETE operations
+- User-specific data (enrollments, progress, payments)
+- Course creation (instructors only)
 
 ---
 
