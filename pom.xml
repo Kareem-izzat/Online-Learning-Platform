@@ -41,6 +41,7 @@
         <module>progress-service</module>
         <module>review-service</module>
         <module>certificate-service</module>
+        <module>discussion-service</module>
     </modules>
     
     <dependencyManagement>
