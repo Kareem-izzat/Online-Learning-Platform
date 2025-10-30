@@ -40,6 +40,7 @@
         <module>quiz-service</module>
         <module>progress-service</module>
         <module>review-service</module>
+        <module>certificate-service</module>
     </modules>
     
     <dependencyManagement>
