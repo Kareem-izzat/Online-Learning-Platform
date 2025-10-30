@@ -113,7 +113,7 @@ public class DiscussionController {
         return ResponseEntity.ok(response);
     }
 
-    // ==================== Comment Management ====================
+    // ====================  Comment Management  ====================
 
     @PostMapping("/comments")
     public ResponseEntity<CommentResponse> addComment(@Valid @RequestBody CommentRequest request) {

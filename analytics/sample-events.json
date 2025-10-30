@@ -1,0 +1,62 @@
+[
+  {
+    "eventType": "thread_created",
+    "eventId": "a7d9f2d3-1111-2222-3333-444455556666",
+    "occurredAt": "2025-10-30T12:34:56Z",
+    "schemaVersion": 1,
+    "sourceService": "discussion-service",
+    "traceId": "trace-123",
+    "payload": {
+      "threadId": 123,
+      "courseId": 42,
+      "authorId": 777,
+      "title": "How do I fix NullPointer when using XYZ?",
+      "category": "QUESTION",
+      "tags": ["java","spring"],
+      "createdAt": "2025-10-30T12:34:56Z"
+    }
+  },
+  {
+    "eventType": "comment_added",
+    "eventId": "b4c8a1e2-1111-2222-3333-444455556666",
+    "occurredAt": "2025-10-30T12:40:10Z",
+    "schemaVersion": 1,
+    "sourceService": "discussion-service",
+    "payload": {
+      "commentId": 456,
+      "threadId": 123,
+      "authorId": 888,
+      "parentCommentId": null,
+      "isAnswer": false,
+      "createdAt": "2025-10-30T12:40:10Z"
+    }
+  },
+  {
+    "eventType": "vote_cast",
+    "eventId": "c9e3d4f5-1111-2222-3333-444455556666",
+    "occurredAt": "2025-10-30T13:01:02Z",
+    "schemaVersion": 1,
+    "sourceService": "discussion-service",
+    "payload": {
+      "voteId": 999,
+      "userId": 777,
+      "targetType": "THREAD",
+      "targetId": 123,
+      "voteType": "UPVOTE",
+      "createdAt": "2025-10-30T13:01:02Z"
+    }
+  },
+  {
+    "eventType": "thread_viewed",
+    "eventId": "d2f6e8a0-1111-2222-3333-444455556666",
+    "occurredAt": "2025-10-30T13:10:00Z",
+    "schemaVersion": 1,
+    "sourceService": "discussion-service",
+    "payload": {
+      "threadId": 123,
+      "viewerId": 1010,
+      "sessionId": "sess-abc-123",
+      "viewedAt": "2025-10-30T13:10:00Z"
+    }
+  }
+]

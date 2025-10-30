@@ -23,6 +23,7 @@ public class DiscussionService {
     private final ThreadRepository threadRepository;
     private final CommentRepository commentRepository;
     private final VoteRepository voteRepository;
+    private final OutboxService outboxService;
 
     @Value("${discussion.max-tags-per-thread:5}")
     private Integer maxTagsPerThread;
@@ -52,6 +53,9 @@ public class DiscussionService {
         DiscussionThread savedThread = threadRepository.save(thread);
         log.info("Thread created with ID: {}", savedThread.getId());
 
+        // Publish event to outbox (in same transaction)
+        outboxService.publishThreadCreated(savedThread.getId(), savedThread.getCourseId());
+
         return new ThreadResponse(savedThread);
     }
 
@@ -62,6 +66,9 @@ public class DiscussionService {
         // Increment view count
         thread.incrementViewCount();
         threadRepository.save(thread);
+
+        // Publish thread viewed event
+        outboxService.publishThreadViewed(thread.getId(), thread.getCourseId());
 
         return new ThreadResponse(thread);
     }
@@ -219,6 +226,9 @@ public class DiscussionService {
         thread.updateLastActivity();
         threadRepository.save(thread);
 
+        // Publish comment added event
+        outboxService.publishCommentAdded(savedComment.getId(), thread.getId(), thread.getCourseId());
+
         log.info("Comment added with ID: {}", savedComment.getId());
         return new CommentResponse(savedComment);
     }
@@ -341,6 +351,20 @@ public class DiscussionService {
         // Update vote count
         updateVoteCount(request.getTargetType(), request.getTargetId(), request.getVoteType(), true);
 
+        // Get thread and course info for event
+        Long threadId = getThreadIdForTarget(request.getTargetType(), request.getTargetId());
+        Long courseId = getCourseIdForThread(threadId);
+
+        // Publish vote cast event
+        outboxService.publishVoteCast(
+            savedVote.getId(),
+            request.getTargetType().name(),
+            request.getTargetId(),
+            request.getVoteType().name(),
+            threadId,
+            courseId
+        );
+
         log.info("Vote cast successfully");
         return new VoteResponse(savedVote);
     }
@@ -425,5 +449,24 @@ public class DiscussionService {
         stats.setEngagementScore(engagementScore);
 
         return stats;
+    }
+
+    // ==================== Helper Methods for Events ====================
+
+    private Long getThreadIdForTarget(TargetType targetType, Long targetId) {
+        if (targetType == TargetType.THREAD) {
+            return targetId;
+        } else if (targetType == TargetType.COMMENT) {
+            Comment comment = commentRepository.findById(targetId)
+                .orElseThrow(() -> new RuntimeException("Comment not found"));
+            return comment.getThreadId();
+        }
+        throw new IllegalArgumentException("Unknown target type: " + targetType);
+    }
+
+    private Long getCourseIdForThread(Long threadId) {
+        DiscussionThread thread = threadRepository.findById(threadId)
+            .orElseThrow(() -> new RuntimeException("Thread not found"));
+        return thread.getCourseId();
     }
 }
