@@ -133,9 +133,9 @@ curl http://localhost:8080/api/users/1 \
   -H "Authorization: Bearer YOUR_JWT_TOKEN_HERE"
 ```
 
-📖 **Full Documentation**: See [API-GATEWAY-SECURITY.md](API-GATEWAY-SECURITY.md)
+📖 **Full Documentation**: See [SECURITY.md](SECURITY.md)
 
-## �🚀 Getting Started
+## 🚀 Getting Started
 
 ### Prerequisites
 - **Java 17+**
@@ -324,7 +324,7 @@ Before deploying to production:
    - Set network policies for isolation
    - Enable TLS between services
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for complete production deployment guide.
+See [DOCKER.md](DOCKER.md) for complete Docker setup guide with troubleshooting, production deployment, and Kubernetes migration.
 
 ### Troubleshooting
 
@@ -421,17 +421,17 @@ Tests: register → login → JWT validation → protected access → error hand
 
 ### Development Tools
 - **Test Scripts**: PowerShell scripts for testing auth, Kafka, and outbox
-- **Docker Compose**: Kafka setup with KRaft mode
-- **Comprehensive Documentation**: 2000+ lines across multiple MD files
+- **Docker Support**: Production-ready Dockerfiles with multi-stage builds
+- **Docker Compose**: Complete stack orchestration with healthchecks
+- **Comprehensive Documentation**: Complete guides for security, Docker, and deployment
 
-## � Documentation
+## 📖 Documentation
 
-- **[API-GATEWAY-SECURITY.md](API-GATEWAY-SECURITY.md)** - Complete security architecture and configuration
-- **[GATEWAY-SECURITY-IMPLEMENTATION.md](GATEWAY-SECURITY-IMPLEMENTATION.md)** - Implementation summary and quick reference
-- **[SECURITY.md](SECURITY.md)** - Overall security guide
-- **[END-TO-END-ARCHITECTURE.md](END-TO-END-ARCHITECTURE.md)** - Complete system architecture
-- **[DEPLOYMENT.md](DEPLOYMENT.md)** - Production deployment guide
-- **[analytics/INTEGRATION-PATTERNS.md](analytics/INTEGRATION-PATTERNS.md)** - Event-driven patterns
+- **[README.md](README.md)** - This file (project overview and quick start)
+- **[SECURITY.md](SECURITY.md)** - Complete security architecture and authentication guide
+- **[DOCKER.md](DOCKER.md)** - Docker setup, production deployment, and Kubernetes migration
+- **[analytics/INTEGRATION-PATTERNS.md](analytics/INTEGRATION-PATTERNS.md)** - Event-driven patterns (HTTP vs Kafka)
+- **[analytics/event-contract.md](analytics/event-contract.md)** - Event schema definitions
 - **[discussion-service/OUTBOX-PATTERN.md](discussion-service/OUTBOX-PATTERN.md)** - Transactional outbox implementation
 
 ## 🧪 Testing
@@ -451,7 +451,7 @@ cd discussion-service
 ```
 
 ### Manual API Testing
-See individual service READMEs and [API-GATEWAY-SECURITY.md](API-GATEWAY-SECURITY.md) for endpoint documentation.
+See individual service READMEs and [SECURITY.md](SECURITY.md) for endpoint documentation and authentication examples.
 
 ## 🏗️ Project Structure
 
@@ -512,13 +512,15 @@ spring.datasource.password=your_password
 
 ## 🚀 Production Deployment
 
-See [DEPLOYMENT.md](DEPLOYMENT.md) for:
-- Docker containerization
-- Kubernetes deployment
+See [DOCKER.md](DOCKER.md) for:
+- Complete Docker setup guide
+- Production-ready Dockerfiles
 - Environment configuration
-- SSL/TLS setup
-- Monitoring and logging
-- Backup strategies
+- Kubernetes migration with Kompose
+- CI/CD pipeline examples
+- Monitoring with Prometheus/Grafana
+- High availability with Docker Swarm
+- Troubleshooting guide
 
 ## 📝 Status
 
@@ -540,7 +542,9 @@ See [DEPLOYMENT.md](DEPLOYMENT.md) for:
 | Certificate Service | 🟡 Basic CRUD | Certificate generation |
 | Review Service | 🟡 Basic CRUD | Course reviews and ratings |
 
-**Legend**: 🟢 Production-ready | 🟡 Functional (needs security integration) | 🔴 In Development
+**Legend**: 🟢 Production-ready with full security | 🟡 Functional (secured via API Gateway) | 🔴 In Development
+
+**Note**: All services (🟡) are secured through the API Gateway's centralized JWT authentication. They trust the `X-User-Id` header added by the gateway.
 
 ## 🤝 Contributing
 
