@@ -13,8 +13,6 @@ The Online Learning Platform implements a **centralized security architecture** 
 
 ## Quick Start
 
-See **[API-GATEWAY-SECURITY.md](API-GATEWAY-SECURITY.md)** for complete centralized authentication documentation.
-
 ### Architecture
 
 ```
@@ -39,12 +37,7 @@ Client → API Gateway (Validates JWT) → Backend Service (Trusts Headers)
 
 **✅ Current Implementation**: All services protected at gateway level
 
-See **[API-GATEWAY-SECURITY.md](API-GATEWAY-SECURITY.md)** for:
-- Complete authentication flow
-- Configuration guide
-- Testing examples
-- Production checklist
-- Troubleshooting
+The API Gateway validates JWT tokens and forwards authenticated requests to backend services with user context headers (`X-User-Id`, `X-Username`).
 
 ### Public Endpoints (No Auth Required)
 
