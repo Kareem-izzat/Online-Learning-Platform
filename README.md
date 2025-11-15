@@ -171,33 +171,197 @@ mvn spring-boot:run
 - API Gateway: http://localhost:8080
 - User Service: http://localhost:8081
 
-## 🐳 Docker (local development)
+## 🐳 Docker (Recommended for Local Development)
 
-To make local development easier the repo includes Dockerfiles for core services and a `docker-compose.yml` at the repo root.
+The repo includes production-ready Dockerfiles and a Docker Compose setup for easy local development.
 
-What the compose file brings up by default:
-- Postgres (for User Service)
+### What's Included
+
+**Core Stack** (`docker-compose.yml`):
+- PostgreSQL 15 (with persistent volume)
 - Discovery Service (Eureka)
-- User Service
-- API Gateway
+- User Service (with JWT authentication)
+- API Gateway (with JWT validation)
 
-Prerequisites: Docker and Docker Compose installed.
+**Separate Stack** (`analytics/docker-compose.yml`):
+- Apache Kafka (KRaft mode)
+- For Analytics and Discussion services
 
-Build and start the stack:
+### Quick Start
+
+#### 1. Configure Environment Variables
+
+Copy the example environment file and customize it:
+
 ```powershell
-# from repo root
+# Copy .env.example to .env
+copy .env.example .env
+
+# Edit .env and set:
+# - Secure database password
+# - Strong JWT secret (generate with: openssl rand -base64 32)
+# - Custom ports if needed
+```
+
+#### 2. Build and Start Services
+
+```powershell
+# From repo root - build and start all services
+docker compose up --build -d
+
+# Wait for services to be healthy (30-60 seconds)
+docker compose ps
+```
+
+**Services will be available at**:
+- Eureka Dashboard: http://localhost:8761
+- API Gateway: http://localhost:8080
+- User Service: http://localhost:8081 (via Gateway)
+- PostgreSQL: localhost:5432
+
+#### 3. Test Authentication
+
+```powershell
+# Register a new user
+curl -X POST http://localhost:8080/api/auth/register `
+  -H "Content-Type: application/json" `
+  -d '{\"email\":\"test@example.com\",\"password\":\"pass123\",\"firstName\":\"John\",\"lastName\":\"Doe\",\"role\":\"STUDENT\"}'
+
+# Login to get JWT token
+curl -X POST http://localhost:8080/api/auth/login `
+  -H "Content-Type: application/json" `
+  -d '{\"email\":\"test@example.com\",\"password\":\"pass123\"}'
+```
+
+#### 4. View Logs
+
+```powershell
+# All services
+docker compose logs -f
+
+# Specific service
+docker compose logs -f api-gateway
+docker compose logs -f user-service
+```
+
+#### 5. Stop Services
+
+```powershell
+# Stop containers (keeps volumes)
+docker compose down
+
+# Stop and remove volumes (clean slate)
+docker compose down -v
+```
+
+### Advanced Usage
+
+#### Start Kafka for Analytics
+
+```powershell
+# In separate terminal
+cd analytics
+docker compose up -d
+
+# Kafka will be available at localhost:9092
+```
+
+#### Rebuild Single Service
+
+```powershell
+# Rebuild and restart a specific service
+docker compose up --build -d api-gateway
+```
+
+#### Execute Commands Inside Containers
+
+```powershell
+# Connect to PostgreSQL
+docker compose exec postgres psql -U postgres -d user_service_db
+
+# Check Java version in service
+docker compose exec user-service java -version
+```
+
+#### Resource Management
+
+The Dockerfiles include:
+- ✅ Multi-stage builds (smaller images)
+- ✅ Non-root users (security)
+- ✅ Healthchecks (proper startup ordering)
+- ✅ JVM memory limits via `JAVA_OPTS`
+
+Customize resources in `.env`:
+```properties
+JAVA_OPTS=-Xmx512m -Xms256m -XX:+UseG1GC
+```
+
+### Production Considerations
+
+Before deploying to production:
+
+1. **Security**:
+   - Generate strong JWT secret: `openssl rand -base64 32`
+   - Use secrets manager (AWS Secrets Manager, HashiCorp Vault)
+   - Enable HTTPS with proper certificates
+   - Set secure database passwords
+
+2. **Scaling**:
+   - Deploy to Kubernetes or Docker Swarm
+   - Use external PostgreSQL (AWS RDS, Azure Database)
+   - Configure horizontal pod autoscaling
+   - Add load balancers
+
+3. **Monitoring**:
+   - Add Prometheus + Grafana for metrics
+   - Configure centralized logging (ELK stack)
+   - Set up alerting (PagerDuty, Slack)
+   - Enable distributed tracing (Zipkin, Jaeger)
+
+4. **Networking**:
+   - Use overlay networks for service mesh
+   - Configure proper ingress controllers
+   - Set network policies for isolation
+   - Enable TLS between services
+
+See [DEPLOYMENT.md](DEPLOYMENT.md) for complete production deployment guide.
+
+### Troubleshooting
+
+**Services won't start?**
+```powershell
+# Check service status
+docker compose ps
+
+# View detailed logs
+docker compose logs
+
+# Restart specific service
+docker compose restart user-service
+```
+
+**Database connection errors?**
+```powershell
+# Ensure Postgres is healthy
+docker compose exec postgres pg_isready
+
+# Check connection from service
+docker compose exec user-service ping postgres
+```
+
+**Port conflicts?**
+```powershell
+# Change ports in .env file
+POSTGRES_PORT=5433
+API_GATEWAY_PORT=8081
+```
+
+**Clean start needed?**
+```powershell
+# Remove everything and start fresh
+docker compose down -v
 docker compose up --build -d
 ```
-
-Stop and remove:
-```powershell
-docker compose down
-```
-
-Notes:
-- JWT secret and other sensitive settings are provided as environment variables in the compose file for convenience; change them before using in any shared environment.
-- Analytics (Kafka) is intentionally separate; to run Kafka use the existing `analytics/docker-compose.yml` which contains the Kafka setup used by Analytics and Discussion services.
-- For production deployments, use a dedicated container registry and orchestration (K8s) and do not store secrets in plaintext.
 
 #### 3. Start Kafka (for Analytics and Discussion)
 ```bash

@@ -3,60 +3,117 @@ version: '3.8'
 services:
   postgres:
     image: postgres:15
+    container_name: learning-postgres
     environment:
-      POSTGRES_DB: user_service_db
-      POSTGRES_USER: postgres
-      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: ${POSTGRES_DB:-user_service_db}
+      POSTGRES_USER: ${POSTGRES_USER:-postgres}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-postgres}
     volumes:
       - postgres-data:/var/lib/postgresql/data
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-postgres}"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+    networks:
+      - learning-network
 
   discovery-service:
     build:
       context: ./discovery-service
       dockerfile: Dockerfile
+    container_name: learning-discovery
     environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_URL:-http://discovery-service:8761/eureka/}
+      - JAVA_OPTS=${JAVA_OPTS:--Xmx512m -Xms256m}
     ports:
-      - "8761:8761"
+      - "${DISCOVERY_PORT:-8761}:8761"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8761/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     depends_on:
-      - postgres
+      postgres:
+        condition: service_healthy
+    networks:
+      - learning-network
 
   user-service:
     build:
       context: ./user-service
       dockerfile: Dockerfile
+    container_name: learning-user-service
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/user_service_db
-      - SPRING_DATASOURCE_USERNAME=postgres
-      - SPRING_DATASOURCE_PASSWORD=postgres
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-      - jwt.secret=change-me-in-production
-      - jwt.expiration=86400000
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:${POSTGRES_PORT:-5432}/${POSTGRES_DB:-user_service_db}
+      - SPRING_DATASOURCE_USERNAME=${POSTGRES_USER:-postgres}
+      - SPRING_DATASOURCE_PASSWORD=${POSTGRES_PASSWORD:-postgres}
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_URL:-http://discovery-service:8761/eureka/}
+      - jwt.secret=${JWT_SECRET:-your-256-bit-secret-change-this-in-production-make-it-at-least-32-characters-long}
+      - jwt.expiration=${JWT_EXPIRATION:-86400000}
+      - JAVA_OPTS=${JAVA_OPTS:--Xmx512m -Xms256m}
     ports:
-      - "8081:8081"
+      - "${USER_SERVICE_PORT:-8081}:8081"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8081/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     depends_on:
-      - discovery-service
-      - postgres
+      discovery-service:
+        condition: service_healthy
+      postgres:
+        condition: service_healthy
+    networks:
+      - learning-network
 
   api-gateway:
     build:
       context: ./api-gateway
       dockerfile: Dockerfile
+    container_name: learning-api-gateway
     environment:
-      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
-      - jwt.secret=change-me-in-production
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=${EUREKA_URL:-http://discovery-service:8761/eureka/}
+      - jwt.secret=${JWT_SECRET:-your-256-bit-secret-change-this-in-production-make-it-at-least-32-characters-long}
+      - JAVA_OPTS=${JAVA_OPTS:--Xmx512m -Xms256m}
     ports:
-      - "8080:8080"
+      - "${API_GATEWAY_PORT:-8080}:8080"
+    healthcheck:
+      test: ["CMD-SHELL", "curl -f http://localhost:8080/actuator/health || exit 1"]
+      interval: 30s
+      timeout: 10s
+      retries: 5
+      start_period: 60s
     depends_on:
-      - discovery-service
-      - user-service
+      discovery-service:
+        condition: service_healthy
+      user-service:
+        condition: service_healthy
+    networks:
+      - learning-network
 
 volumes:
   postgres-data:
+    driver: local
 
+networks:
+  learning-network:
+    driver: bridge
+
+# ========================================
+# Usage:
+# ========================================
+# 1. Copy .env.example to .env and update values
+# 2. Build and start: docker compose up --build -d
+# 3. Check logs: docker compose logs -f [service-name]
+# 4. Stop: docker compose down
+# 5. Remove volumes: docker compose down -v
+#
 # Notes:
-# - This compose file brings up Postgres, Discovery (Eureka), User Service and API Gateway.
-# - For Kafka and analytics, use the existing analytics/docker-compose.yml (it contains Kafka setup).
-# - In production, set secrets via environment variables or a secrets manager, and use proper networks and healthchecks.
+# - Healthchecks ensure services start in correct order
+# - For Kafka and analytics, use analytics/docker-compose.yml
+# - In production: use secrets manager, enable HTTPS, set resource limits
