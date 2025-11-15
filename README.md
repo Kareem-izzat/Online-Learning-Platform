@@ -171,6 +171,34 @@ mvn spring-boot:run
 - API Gateway: http://localhost:8080
 - User Service: http://localhost:8081
 
+## 🐳 Docker (local development)
+
+To make local development easier the repo includes Dockerfiles for core services and a `docker-compose.yml` at the repo root.
+
+What the compose file brings up by default:
+- Postgres (for User Service)
+- Discovery Service (Eureka)
+- User Service
+- API Gateway
+
+Prerequisites: Docker and Docker Compose installed.
+
+Build and start the stack:
+```powershell
+# from repo root
+docker compose up --build -d
+```
+
+Stop and remove:
+```powershell
+docker compose down
+```
+
+Notes:
+- JWT secret and other sensitive settings are provided as environment variables in the compose file for convenience; change them before using in any shared environment.
+- Analytics (Kafka) is intentionally separate; to run Kafka use the existing `analytics/docker-compose.yml` which contains the Kafka setup used by Analytics and Discussion services.
+- For production deployments, use a dedicated container registry and orchestration (K8s) and do not store secrets in plaintext.
+
 #### 3. Start Kafka (for Analytics and Discussion)
 ```bash
 cd analytics

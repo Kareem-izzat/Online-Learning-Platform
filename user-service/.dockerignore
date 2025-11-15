@@ -1,0 +1,6 @@
+target
+**/target
+*.log
+*.pid
+.git
+.mvn

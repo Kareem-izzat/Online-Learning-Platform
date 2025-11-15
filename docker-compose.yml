@@ -1,0 +1,62 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15
+    environment:
+      POSTGRES_DB: user_service_db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+    volumes:
+      - postgres-data:/var/lib/postgresql/data
+    ports:
+      - "5432:5432"
+
+  discovery-service:
+    build:
+      context: ./discovery-service
+      dockerfile: Dockerfile
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+    ports:
+      - "8761:8761"
+    depends_on:
+      - postgres
+
+  user-service:
+    build:
+      context: ./user-service
+      dockerfile: Dockerfile
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:postgresql://postgres:5432/user_service_db
+      - SPRING_DATASOURCE_USERNAME=postgres
+      - SPRING_DATASOURCE_PASSWORD=postgres
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - jwt.secret=change-me-in-production
+      - jwt.expiration=86400000
+    ports:
+      - "8081:8081"
+    depends_on:
+      - discovery-service
+      - postgres
+
+  api-gateway:
+    build:
+      context: ./api-gateway
+      dockerfile: Dockerfile
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://discovery-service:8761/eureka/
+      - jwt.secret=change-me-in-production
+    ports:
+      - "8080:8080"
+    depends_on:
+      - discovery-service
+      - user-service
+
+volumes:
+  postgres-data:
+
+# Notes:
+# - This compose file brings up Postgres, Discovery (Eureka), User Service and API Gateway.
+# - For Kafka and analytics, use the existing analytics/docker-compose.yml (it contains Kafka setup).
+# - In production, set secrets via environment variables or a secrets manager, and use proper networks and healthchecks.

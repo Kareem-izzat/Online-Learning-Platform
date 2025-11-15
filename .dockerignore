@@ -1,0 +1,12 @@
+target
+**/target
+*.log
+*.pid
+.git
+.gitignore
+Dockerfile
+.dockerignore
+.idea
+.vscode
+*.iml
+node_modules
